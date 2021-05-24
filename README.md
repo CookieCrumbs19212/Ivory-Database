@@ -1,2 +1,2 @@
 # Ivory_Database
- Elementary Local Database to store organized data with sorting and querying features.
+ A Personal Local Database to store organized data with rudimentary sorting and querying features.
