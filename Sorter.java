@@ -3,7 +3,7 @@ class Sorter {
     private int input[][];
     private int length;
 
-    public void quickSort(String[] input, int column_number, boolean ascending) {
+    public void quickSort(String[] input, String attribute_name, boolean ascending) {
 
         // validating input
         if (input == null || input.length == 0) {
