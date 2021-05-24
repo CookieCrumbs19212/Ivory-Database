@@ -46,4 +46,8 @@ public class Database{
     public void deleteRow(String attribute_name, String attribute_value){
 
     } // deleteRow(String, String)
+
+    public boolean EXISTS(String attribute_name, String attribute_value){
+        return false;
+    } // FIND()
 } // class

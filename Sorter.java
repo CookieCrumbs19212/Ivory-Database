@@ -1,10 +1,11 @@
 class Sorter {
 
     private String[] attributes; // contains the column header names
+    private int attributes_len; // stores the number of columns, equal to the number of attributes in the table
     private String[][] table; // table that contains the organized data
     private int rows; // stores the number of rows in the table, this includes the column header row
-    private int attributes_len; // stores the number of columns, equal to the number of attributes in the table
-
+    private int attribute_index; // the attribute according to which the table is going to be organized
+    
     public void quickSort(String[][] table, String attribute_name, boolean ascending) {
 
         // validating table
@@ -13,116 +14,121 @@ class Sorter {
         }
         
         this.table = table;
+        this.rows = table.length;
         this.attributes = table[0]; // 0th row is column headers, these are stored in attributes
-        rows = table.length;
-        attributes_len = attributes.length;
-        attribute_name = attribute_name.toUpperCase();
+        this.attributes_len = attributes.length;
 
-        //validating attribute_name
-        validateAttribute(attribute_name);
+        // validating and getting attribute_index
+        this.attribute_index = getAttributeIndex(attribute_name.toUpperCase());
+        if(attribute_index == -1){ // getAttributeIndex() returns -1 if the attribute_name does not exist for this table
+            return;
+        }
 
-        // ascending or descending
+        /** 
+         * following if statment decides sorting in ascending or descending, the starting index is passed as [1] 
+         * because the index [0] contains the column headers(a.k.a. the attribute names).
+        **/
         if(ascending)
-            quickSortAscending(0, length - 1); // table sorted in ascending order
+            quickSortAscending(1, rows-1); // table sorted in ascending order
         else
-            quickSortDescending(0, length - 1); // table sorted in descending order
+            quickSortDescending(1, rows-1); // table sorted in descending order
     } // sort()
 
     /*
      * This method implements in-place quicksort algorithm recursively.
      */
     private void quickSortAscending(int low, int high) {
-        int i = low;
-        int j = high;
+        int index1 = low;
+        int index2 = high;
 
         // pivot is middle index
-        int pivot = input[low + (high - low) / 2];
+        String pivot = table[low + (high-low)/2][attribute_index];
 
         // Divide into two arrays
-        while (i <= j) {
+        while (index1 <= index2) {
             /**
              * As shown in above image, In each iteration, we will identify a
              * number from left side which is greater then the pivot value, and
              * a number from right side which is less then the pivot value. Once
              * search is complete, we can swap both numbers.
              */
-            while (input[i] < pivot) {
-                i++;
+            while (table[index1][attribute_index].compareTo(pivot) < 0) {
+                index1++;
             }
-            while (input[j] > pivot) {
-                j--;
+            while (table[index2][attribute_index].compareTo(pivot) > 0) {
+                index2--;
             }
-            if (i <= j) {
-                swap(i, j);
+            if (index1 <= index2) {
+                swap(index1, index2);
                 // move index to next position on both sides
-                i++;
-                j--;
+                index1++;
+                index2--;
             }
-        }
+        } // while loop
 
         // calls quickSort() method recursively
-        if (low < j) {
-            quickSortAscending(low, j);
+        if (low < index2) {
+            quickSortAscending(low, index2);
         }
 
-        if (i < high) {
-            quickSortAscending(i, high);
+        if (index1 < high) {
+            quickSortAscending(index1, high);
         }
-    }
+    } // quickSortAscending()
 
+    /*
+     * This method implements in-place quicksort algorithm recursively.
+     */
     private void quickSortDescending(int low, int high) {
-        int i = low;
-        int j = high;
+        int index1 = low;
+        int index2 = high;
 
         // pivot is middle index
-        int pivot = input[low + (high - low) / 2];
+        String pivot = table[low + (high-low)/2][attribute_index];
 
         // Divide into two arrays
-        while (i <= j) {
+        while (index1 <= index2) {
             /**
-             * As shown in above image, In each iteration, we will identify a
-             * number from left side which is greater then the pivot value, and
-             * a number from right side which is less then the pivot value. Once
-             * search is complete, we can swap both numbers.
+             * In each iteration, we will identify a number from left side which is 
+             * less than the pivot value, and a number from right side which is greater 
+             * than the pivot value. Once search is complete, we can swap both numbers.
              */
-            while (input[i] < pivot) {
-                i++;
+            while (table[index1][attribute_index].compareTo(pivot) > 0) {
+                index1++;
             }
-            while (input[j] > pivot) {
-                j--;
+            while (table[index2][attribute_index].compareTo(pivot) < 0) {
+                index2--;
             }
-            if (i <= j) {
-                swap(i, j);
+            if (index1 <= index2) {
+                swap(index1, index2);
                 // move index to next position on both sides
-                i++;
-                j--;
+                index1++;
+                index2--;
             }
-        }
+        } // while loop
 
-        // calls quickSort() method recursively
-        if (low < j) {
-            quickSortDescending(low, j);
-        }
+        // calls quickSortDescending() method recursively
+        if (low < index2)
+            quickSortDescending(low, index2);
 
-        if (i < high) {
-            quickSortDescending(i, high);
-        }
-    }
+        if (index1 < high)
+            quickSortDescending(index1, high);
+    } // quickSortDescending()
 
     // method to swap the elements in index1 and index2
     private void swap(int index1, int index2) {
-        int temp = input[index1];
-        input[index1] = input[index2];
-        input[index2] = temp;
+        String[] temp = table[index1];
+        table[index1] = table[index2];
+        table[index2] = temp;
     }
 
-    // method to check if attribute_name exists in this table
-    private boolean validateAttribute(String attribute_name){
+    // method to check if attribute_name exists in this table and return its index value in attributes[]
+    private int getAttributeIndex(String attribute_name){
         for(int index = 0 ; index < attributes_len ; index++){
             if(attribute_name.equals(attributes[index]))
-                return true;
+                return index;
         }
-        return false;
+        return -1; // attribute_name does not exist in this table
     } // validateAttribute()
 
 } // class Sorter
