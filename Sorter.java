@@ -1,22 +1,31 @@
 class Sorter {
 
-    private int input[][];
-    private int length;
+    private String[] attributes; // contains the column header names
+    private String[][] table; // table that contains the organized data
+    private int rows; // stores the number of rows in the table, this includes the column header row
+    private int attributes_len; // stores the number of columns, equal to the number of attributes in the table
 
-    public void quickSort(String[] input, String attribute_name, boolean ascending) {
+    public void quickSort(String[][] table, String attribute_name, boolean ascending) {
 
-        // validating input
-        if (input == null || input.length == 0) {
+        // validating table
+        if (table == null || table.length == 0){
             return;
         }
-        this.input = input;
-        length = input.length;
+        
+        this.table = table;
+        this.attributes = table[0]; // 0th row is column headers, these are stored in attributes
+        rows = table.length;
+        attributes_len = attributes.length;
+        attribute_name = attribute_name.toUpperCase();
+
+        //validating attribute_name
+        validateAttribute(attribute_name);
 
         // ascending or descending
         if(ascending)
-            quickSortAscending(0, length - 1);
+            quickSortAscending(0, length - 1); // table sorted in ascending order
         else
-            quickSortDescending(0, length - 1);
+            quickSortDescending(0, length - 1); // table sorted in descending order
     } // sort()
 
     /*
@@ -106,4 +115,14 @@ class Sorter {
         input[index1] = input[index2];
         input[index2] = temp;
     }
+
+    // method to check if attribute_name exists in this table
+    private boolean validateAttribute(String attribute_name){
+        for(int index = 0 ; index < attributes_len ; index++){
+            if(attribute_name.equals(attributes[index]))
+                return true;
+        }
+        return false;
+    } // validateAttribute()
+
 } // class Sorter
