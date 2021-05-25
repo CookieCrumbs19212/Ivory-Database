@@ -1,9 +1,11 @@
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.Serializable;
+
 import IvoryDBExceptions.*;
 
-public class IvoryDatabase implements AutoCloseable{
+public class IvoryDatabase implements AutoCloseable, Serializable{
     /**
      * Each Attribute object in attributes[] acts like a Column.
      * Each Attribute object holds the data values for an Attribute in an Object Array.
@@ -13,7 +15,15 @@ public class IvoryDatabase implements AutoCloseable{
     int rows, columns; // total number of rows, total number of columns, in the table
     String file_location; // location of the .ivry file where the database table is stored
 
-    // initializing an IvoryDatabase object and creating a new .ivry file at "file_location"
+    /** 
+     * initializing an IvoryDatabase object and creating a new .ivry file at "file_location"
+     * 
+     * @param rows
+     * @param columns
+     * @param file_location
+     * 
+     * @throws 
+     */
     public IvoryDatabase(int rows, int columns, String file_location) {
         this.rows = rows; // number of rows (also called "entries") in the database
         this.columns = columns; // number of columns (also called "attributes") in the database
@@ -21,23 +31,20 @@ public class IvoryDatabase implements AutoCloseable{
         attributes = new Attribute[columns]; // creating an Attribute Object array (Attribute Objects not initialized yet)
     } // constructor IvoryDatabase(rows, columns)
 
-    // initializing an IvoryDatabase object with an existing .ivry file at "file_location"
+    /** 
+     * initializing an IvoryDatabase object with an existing .ivry file at "file_location"
+     * 
+     * @param file_location
+     * 
+     * @throws IvoryDatabaseNotFoundException
+     */
     public IvoryDatabase(String file_location) throws IvoryDatabaseNotFoundException{
         // validating file_location
         if (file_location == null || !file_location.endsWith(".ivry")) {
             throw new IvoryDatabaseNotFoundException(file_location);
-            return;
         }
-        this.file_location = file_location; // assigning to global variable
-        // 
-        try (BufferedReader br = new BufferedReader(new FileReader(file_location))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                table[row++] = line.split(","); // split up values in the line and store in String array
-            } // while
 
-        } // try
-        catch (FileNotFoundException e) { e.printStackTrace(); }
+        this.file_location = file_location; // assigning to global variable
 
     } // constructor IvoryDatabase(file_location)
 
@@ -86,8 +93,7 @@ public class IvoryDatabase implements AutoCloseable{
      */
     @Override
     public void close() { 
-        for(Attribute attribute:attributes) { 
-            
+        for(Attribute attribute:attributes) {
             attribute = null; 
         }
         System.gc(); // invoking java garbage collector
