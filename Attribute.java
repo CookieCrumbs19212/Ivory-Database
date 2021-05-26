@@ -52,6 +52,7 @@ class Attribute implements Serializable{
             }
         } catch(NullArgumentException e){
             e.printStackTrace();
+            System.exit(-1); // unsuccessful termination
         }
 
         this.attribute_name = attribute_name.toUpperCase();
@@ -99,6 +100,7 @@ class Attribute implements Serializable{
                     throw new UnsupportedObjectException(data_type);
                 } catch (UnsupportedObjectException e) {
                     e.printStackTrace();
+                    System.exit(-1); // unsuccessful termination
                 }
                 break;
         } // switch
@@ -190,6 +192,7 @@ class Attribute implements Serializable{
                 throw new UnsupportedObjectException(cls.toString());
             } catch (UnsupportedObjectException e) {
                 e.printStackTrace();
+                System.exit(-1); // unsuccessful termination
             }
             return false;
         }
