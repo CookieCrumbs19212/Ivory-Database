@@ -44,7 +44,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
      */
     public IvoryDatabase(int rows, int columns, String file_location) {
         if(file_location == null)
-            throw new InvalidArgumentException("file_location", null);
+            throw new NullArgumentException("file_location");
         this.rows = rows; // number of rows (also called "entries") in the database
         this.columns = columns; // number of columns (also called "attributes") in the database
         this.file_location = file_location; // file location of the database
