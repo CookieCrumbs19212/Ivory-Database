@@ -1,8 +1,10 @@
+import java.io.Serializable;
+
 import IvoryDBExceptions.NullArgumentException;
 import IvoryDBExceptions.UnsupportedObjectException;
 
-class Attribute {
-    String attribute_name; // name of the attribute
+class Attribute implements Serializable{
+    private String attribute_name; // name of the attribute.
     /**
      * Since we do not know the OBJECT TYPE of the attribute 
      * until it is initialized, we can declare 'cells[]' as 
@@ -98,7 +100,7 @@ class Attribute {
                 } catch (UnsupportedObjectException e) {
                     e.printStackTrace();
                 }
-
+                break;
         } // switch
     } // constructor
 
@@ -126,10 +128,25 @@ class Attribute {
      * @see validateType(value)
      *      invoked to ensure that the Object Type of value is supported.
      */
-    public <T extends Object> void addTo(int cell_index, T value){
+    public <T extends Object> void setCell(int cell_index, T value){
         validateType(value);
         cells[cell_index] = value;
-    }
+    } // setCell()
+
+    /**
+     * method to return the requested value from {@code cells[]}.
+     * 
+     * @param index
+     *        the array index number of the value in {@code cells[]}.
+     * 
+     * @return the value at {@code index} of {@code cells[]} in the 
+     *         same Object Type of the array elements in {@code cells[]};
+     *         i.e. String, Integer, Long, Short, Byte, Boolean, Float, 
+     *              Double, or Character Object Type.
+     */
+    public Object getValue(int index){
+        return cells[index];
+    } // getValue()
 
     /**
      * method to validate the Object Type of the given parameter.
@@ -148,25 +165,32 @@ class Attribute {
      *         supported Object Types.
      */
     private <T extends Object> boolean validateType(T value){
-        if(value.getClass() == String.class){
+        Class<?> cls = value.getClass(); // getting and storing the Object Class of the 'value' object.
+
+        if(cls == String.class){
             return true;
         }
-        else if(value.getClass() == Integer.class){
+        else if(cls == Integer.class){
             return true;
         }
-        else if(value.getClass() == Boolean.class){
+        else if(cls == Boolean.class){
             return true;
         }
-        else if(value.getClass() == Float.class){
+        else if(cls == Float.class){
             return true;
         }
-        else if(value.getClass() == Double.class){
+        else if(cls == Double.class){
             return true;
         }
-        else if(value.getClass() == Character.class){
+        else if(cls == Character.class){
             return true;
         }
         else {
+            try {
+                throw new UnsupportedObjectException(cls.toString());
+            } catch (UnsupportedObjectException e) {
+                e.printStackTrace();
+            }
             return false;
         }
     } // validateType()
