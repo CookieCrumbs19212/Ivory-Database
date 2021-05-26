@@ -3,8 +3,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Locale;
 
 import IvoryDBExceptions.*;
 
@@ -16,67 +18,62 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
      * Attribute.java objects are kept track of using an Array of Attributes in the 
      * IvoryDatabase.java class: 'Attribute[] attributes'
      */
-    public String database_name; // name of the Ivory Database object.
     private Attribute[] attributes;
     private int rows, columns; // total number of rows, total number of columns, in the database.
-    private String file_location; // location of the .ivry file where the database table is stored.
+
+    private String file_directory; // directory where the .ivry file is stored.
+    private String database_name; // name of the .ivry file.
 
     /** 
      * initializing an IvoryDatabase object and creating a new .ivry file at "file_location"
      * 
-     * @param rows - total number of rows in the database. "Rows" are also called "Entries"
+     * @param database_name
+     *        the name of the IvoryDatabase object. Used as filename when saving 
+     *        into .ivry file.
+     *        Should not be null. If null, the class variable database_name will
+     *        be assigned "Ivory_Database_({num})", where num is any integer number.
      * 
-     * @param columns - total number of columns in the database. "Columns" are also called 
-     *                  "Attributes" and they are implemented using Attribute objects.
+     * @param rows 
+     *        total number of rows in the database. "Rows" are also called "Entries"
      * 
-     *                  This is done because Java does not natively support multidimensional 
-     *                  arrays of different Types. Hence the Attribute.java object is 
-     *                  utilized to realize 'columns' in the Ivory Database and the
-     *                  IvoryDatabase.java class contains the class variable attributes 
-     *                  which is an Array of Attribute.java objects. 
+     * @param columns
+     *        total number of columns in the database. "Columns" are also called 
+     *        "Attributes" and they are implemented using Attribute objects.
+     *              
+     *        This is done because Java does not natively support multidimensional 
+     *        arrays of different Types. Hence the Attribute.java object is 
+     *        utilized to realize 'columns' in the Ivory Database and the
+     *        IvoryDatabase.java class contains the class variable attributes 
+     *        which is an Array of Attribute.java objects. 
+     *           
+     *        Hence, we are able to create a 2 Dimensional data structure that is
+     *        capable of storing data of different data types in each column.
      * 
-     *                  Hence, we are able to create a 2 Dimensional data structure that is
-     *                  capable of storing data of different data types in each column.
-     * 
-     * @param file_location - the location in the computer where the Ivory Database file
-     *                        (.ivry) will be stored after creation of an Ivory Database by
-     *                        the following constructor.
-     *                        Should never be null
-     * 
-     * @throws 
+     * @param file_location
+     *        the location in the computer where the Ivory Database file
+     *        (.ivry) will be stored after creation of an Ivory Database by
+     *        the following constructor.
+     *        Should never be null. If null, the output file of this IvoryDB will 
+     *        be saved at the default save location (differs for different OSes).
      */
-    public IvoryDatabase(String database_name, int rows, int columns, String file_location) {
-        // validating params, checking if any of the parameters are null.
-        try{
-            if(database_name == null){
-                throw new NullArgumentException("database_name");
-            }
-            else if(file_location == null){
-                throw new NullArgumentException("file_location");
-            }
-        } catch(NullArgumentException e){
-            e.printStackTrace();
-        }
+    public IvoryDatabase(int rows, int columns, String file_location) {
+        // setting file_directory and database_name.
+        setDirectoryAndDBName(file_location);
 
-        if(database_name == null || file_location == null){
-            try {
-                throw new NullArgumentException("file_location");
-            } catch (NullArgumentException nae) {
-                createDirectoryAndIVRYFile();
-            }
-        }
         this.rows = rows; // number of rows (also called "entries") in the database
         this.columns = columns; // number of columns (also called "attributes") in the database
-        this.file_location = file_location; // file location of the database
+        this.file_directory = file_location; // file location of the database
         attributes = new Attribute[columns]; // creating an Attribute Object array (Attribute Objects not initialized yet)
 
-    } // constructor IvoryDatabase(rows, columns)
+    } // constructor IvoryDatabase(rows, columns, file_location)
+
 
     /** 
      * initializing an IvoryDatabase object with an existing .ivry file at "file_location"
      * 
-     * @param file_location - the location in the computer where an existing Ivory Database
-     *                        file (.ivry) is stored.
+     * @param file_location
+     *        the location in the computer where an existing Ivory Database
+     *        file (.ivry) is stored.
      * 
      * @throws IvoryDatabaseNotFoundException
      */
@@ -86,67 +83,103 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
             throw new IvoryDatabaseNotFoundException(file_location);
         }
 
-        this.file_location = file_location; // assigning to global variable
+        // setting file_directory and database_name.
+        setDirectoryAndDBName(file_location);
+
+        // deserializing the file.
+        try {
+            FileInputStream fileIn = new FileInputStream(file_directory + database_name + ".ivry");
+            ObjectInputStream streamIn = new ObjectInputStream(fileIn);
+
+            // copying the class variables.
+            IvoryDatabase deserializedDB = (IvoryDatabase) streamIn.readObject();
+            this.attributes = deserializedDB.attributes;
+            this.rows = deserializedDB.rows;
+            this.columns = deserializedDB.columns;
+
+            // closing streams.
+            streamIn.close();
+            fileIn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
 
     } // constructor IvoryDatabase(file_location)
 
-    /**
-     * Explanation of how the following createDirectoryAndIVRYFile() method works.
-     * 
-     * ******** START OF METHOD ********
-     * 
-     * check if "Ivory_Databases" folder exists in current directory 
-     * (the current directory is where the IvoryDatabase.java file exists):
-     * |--> if False:
-     * |    |   F.1. create an "Ivory_Databases" folder in current directory.
-     * |    |   F.2. create an "Ivory_Database_(1).ivry" file.
-     * |    |   F.3. assign path of "Ivory_Database_1.ivry" to (file_location).
-     * |     
-     * |--> if True:
-     * |    |   T.1. go into "Ivory_Databases" directory by creating new File reference.
-     * |    |   T.2. check if File "Ivory_Database_({DB_number}).ivry" already 
-     * |             exists in "Ivory_Databases" directory. 
-     * |             (where DB_number is an int variable starting at 1)
-     * |             |--> if True:
-     * |                  |   increment DB_number by 1 and go back to Step T.2.
-     * |             |--> if False:
-     * |                  |   create an "Ivory_Database_{DB_number}.ivry" file
-     * |                  |   in the "Ivory_Databases" directory.
-     * |    |   T.3. assign path of "Ivory_Database_{DB_number}.ivry" to (file_location).
-     *     
-     *  ******** END OF METHOD ********
-     */
-    private void createDirectoryAndIVRYFile() {
+    public IvoryDatabase(IvoryDatabase ivoryDBObject, String file_location){
+        this.attributes = ivoryDBObject.attributes;
+        this.rows = ivoryDBObject.rows;
+        this.columns = ivoryDBObject.columns;
         
-        try{
-            // getting the Path of the current directory where the IvoryDatabase.java file is located.
-            String currentDirectory = (new File(IvoryDatabase.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath())).getParent();
-            
-            // checking if "Ivory_Databases" folder exists in the current directory.
-            if((new File(currentDirectory + File.separator + "Ivory_Databases")).exists()){
-                
-                // assigning the Path String of "Ivory_Databases" directory to String currentDirectory.
-                currentDirectory = currentDirectory + File.separator + "Ivory_Databases" + File.separator;
-                
-                // creating a .ivry file in the "Ivory_Databases" directory.
-                int DB_number = 1; // database number concatenated to the end of the .ivry filename.
-                String filename; // stores the name of the Ivory Database file.
-                do{
-                    // connecting different parts of the filename together.
-                    filename = "Ivory_Database(" + DB_number + ").ivry"; 
-                    DB_number++; // incrementing by 1
-                }while((new File(currentDirectory + filename)).exists());
+        // setting file_directory and database_name.
+        setDirectoryAndDBName(file_location);
+    } // constructor IvoryDatabase(IvoryDBObject)
 
-                
-            } // if
+
+    private void setDirectoryAndDBName(String file_location){
+        // checking if it with the correct file extension (.ivry).
+        if(file_location.endsWith(".ivry")){
+            // starting and ending index values of the "file name" contained within the file_location string.
+            int startingIndex = file_location.lastIndexOf(File.separator) + 1;
+            int endingIndex = file_location.lastIndexOf(".ivry");
+
+            // taking the substring of "file_location" that contains only the file name without the file extension.
+            this.database_name = file_location.substring(startingIndex, endingIndex);
+
+            // check if the file location does exists.
+            if(new File(file_location).exists()){
+                this.file_directory = file_location.substring(0, startingIndex);
+            }
             else{
-
-            } // else
-        }catch(Exception ioe){
-            ioe.printStackTrace();
-            System.exit(-1); // unsuccessful termination
+                // set the file_directory to default directory.
+                setDefaultFileDirectory();
+            }
         }
-    } // createDirectoryAndIVRYFile()
+        else{
+            // set file_directory to default directory. 
+            setDefaultFileDirectory();
+            // set database_name to a default database name.
+            setDefaultDatabaseName();
+        }
+    } // setDirectoryAndDBName()
+
+    private void setDefaultDatabaseName(){
+        // creating a .ivry file in the "Ivory_Databases" directory.
+        int DB_number = 1; // database number concatenated to the end of the .ivry filename.
+        String filename; // stores the name of the Ivory Database file.
+        do{
+            // connecting different parts of the filename together.
+            database_name = "Ivory_Database(" + DB_number + ")";
+            filename = database_name + ".ivry"; 
+            DB_number++; // incrementing by 1
+        }while((new File(file_directory + filename)).exists());
+    } // setDefaultDatabaseName()
+
+    private void setDefaultFileDirectory(){
+        // getting the Path string of the current working directory.
+        String workingDirectory = System.getProperty("user.dir");
+
+        // creating an "Ivory_Databases" directory inside the current working directory.
+        file_directory = workingDirectory + File.separator + "Ivory_Databases";
+        File ivoryDBFolder = new File(file_directory);
+
+        // concatenating the File.separator, for convienience later on.
+        file_directory = file_directory + File.separator;
+
+        // checking if the "Ivory_Databases" directory already exists, if it does not: create the directory.
+        if(ivoryDBFolder.exists() == false){
+            if(ivoryDBFolder.mkdir()) // creating the "Ivory_Databases" directory
+                System.out.println("Ivory_Databases directory successfully created in working directory: " + workingDirectory);
+            else 
+                System.out.println("Ivory_Databases directory creation failed."); 
+        }
+    } // setDefaultFileDirectory()
+
+    public String getPathAsString(){
+        return (file_directory + database_name + ".irvy");
+    } // getPathAsString()
+
 
     /**
      * method to save changes made to the IvoryDatabase object and store 
@@ -158,7 +191,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
         boolean save_success; // true when the Ivory Database object is saved to file successfully.
         try {
             // creating FileOutputStream and ObjectOutputStream objects.
-            FileOutputStream fileOut = new FileOutputStream(file_location);
+            FileOutputStream fileOut = new FileOutputStream(file_directory + database_name + ".ivry");
             ObjectOutputStream streamOut = new ObjectOutputStream(fileOut);
             
             // writing IvoryDatabase.java object to (file_location).
