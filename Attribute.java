@@ -1,4 +1,4 @@
-import IvoryDBExceptions.InvalidArgumentException;
+import IvoryDBExceptions.NullArgumentException;
 import IvoryDBExceptions.UnsupportedObjectException;
 
 class Attribute {
@@ -31,11 +31,15 @@ class Attribute {
      * @throws UnsupportedObjectException
      */
     public Attribute(String data_type, String attribute_name, int size) 
-        throws UnsupportedObjectException, InvalidArgumentException{
+        throws UnsupportedObjectException, NullArgumentException{
         // validating params
-        if(data_type == null || attribute_name == null){
-            throw new InvalidArgumentException("null");
+        if(data_type == null){
+            throw new NullArgumentException("data_type");
         }
+        else if(attribute_name == null){
+            throw new NullArgumentException("attribute_name");
+        }
+
         this.name = attribute_name.toUpperCase(); 
         switch(data_type.toLowerCase()){
             case "string":
