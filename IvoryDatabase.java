@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Serializable;
@@ -7,9 +8,11 @@ import IvoryDBExceptions.*;
 
 public class IvoryDatabase implements AutoCloseable, Serializable{
     /**
-     * Each Attribute object in attributes[] acts like a Column.
-     * Each Attribute object holds the data values for an Attribute in an Object Array.
-     * Hence, the attributes for each "Row Entry" is spread across the several 
+     * Each Attribute object in attributes[] acts like a Column in the Ivory Database.
+     * Each Attribute object holds the column values for an Attribute in an Object Array.
+     * Hence, an Ivory Database may have several Attributes associated to it and these
+     * Attribute.java objects are kept track of using an Array of Attributes in the 
+     * IvoryDatabase.java class: 'Attribute[] attributes'
      */
     Attribute[] attributes;
     int rows, columns; // total number of rows, total number of columns, in the table
@@ -18,23 +21,43 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
     /** 
      * initializing an IvoryDatabase object and creating a new .ivry file at "file_location"
      * 
-     * @param rows
-     * @param columns
-     * @param file_location
+     * @param rows - total number of rows in the database. "Rows" are also called "Entries"
+     * 
+     * @param columns - total number of columns in the database. "Columns" are also called 
+     *                  "Attributes" and they are implemented using Attribute objects.
+     * 
+     *                  This is done because Java does not natively support multidimensional 
+     *                  arrays of different Types. Hence the Attribute.java object is 
+     *                  utilized to realize 'columns' in the Ivory Database and the
+     *                  IvoryDatabase.java class contains the class variable attributes 
+     *                  which is an Array of Attribute.java objects. 
+     * 
+     *                  Hence, we are able to create a 2 Dimensional data structure that is
+     *                  capable of storing data of different data types in each column.
+     * 
+     * @param file_location - the location in the computer where the Ivory Database file
+     *                        (.ivry) will be stored after creation of an Ivory Database by
+     *                        the following constructor.
+     *                        Should never be null
      * 
      * @throws 
      */
     public IvoryDatabase(int rows, int columns, String file_location) {
+        if(file_location == null)
+            throw new InvalidArgumentException("file_location", null);
         this.rows = rows; // number of rows (also called "entries") in the database
         this.columns = columns; // number of columns (also called "attributes") in the database
         this.file_location = file_location; // file location of the database
         attributes = new Attribute[columns]; // creating an Attribute Object array (Attribute Objects not initialized yet)
+
+        try(BufferedWriter br = new 
     } // constructor IvoryDatabase(rows, columns)
 
     /** 
      * initializing an IvoryDatabase object with an existing .ivry file at "file_location"
      * 
-     * @param file_location
+     * @param file_location - the location in the computer where an existing Ivory Database
+     *                        file (.ivry) is stored.
      * 
      * @throws IvoryDatabaseNotFoundException
      */
