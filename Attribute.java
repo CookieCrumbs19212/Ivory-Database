@@ -1,6 +1,5 @@
 import java.io.Serializable;
 
-import IvoryDBExceptions.NullArgumentException;
 import IvoryDBExceptions.UnsupportedObjectException;
 
 class Attribute implements Serializable{
@@ -35,24 +34,16 @@ class Attribute implements Serializable{
      * @param size
      *        size of the 'cells[]' array.
      * 
-     * @throws NullArgumentException
-     *         when parameters {@code data_type} or {@code attribute_name} are null.
-     * 
      * @throws UnsupportedObjectException
      *         when parameter {@code data_type} is NOT one of the 9 supported Object Types.
      */
     public Attribute(String data_type, String attribute_name, int size) {
         // validating params, checking if any of the parameters are null.
-        try{
-            if(data_type == null){
-                throw new NullArgumentException("data_type");
-            }
-            else if(attribute_name == null){
-                throw new NullArgumentException("attribute_name");
-            }
-        } catch(NullArgumentException e){
-            e.printStackTrace();
-            System.exit(-1); // unsuccessful termination
+        if(data_type == null){
+            throw new IllegalArgumentException("data_type cannot be null.");
+        }
+        if(attribute_name == null){
+            throw new IllegalArgumentException("attribute_name cannot be null.");
         }
 
         this.attribute_name = attribute_name.toUpperCase();
