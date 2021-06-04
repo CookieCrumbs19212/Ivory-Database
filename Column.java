@@ -110,9 +110,9 @@ class Column implements Serializable{
      * 
      * @return The value at {@code index} of {@code cells}.         
      */
-    public Object getValueAt(int index){
+    public Object get(int index){
         return cells.get(index);
-    } // getValueAt()
+    } // get()
 
 
     /**
