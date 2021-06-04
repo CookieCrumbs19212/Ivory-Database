@@ -441,13 +441,26 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
      * @param newEntry
      *        Object array containing the Column values for the new entry.
      */
-    public void ADD(Object[] newEntry){
+    public boolean ADD(Object[] newEntry){
+        // creating temporary Column reference.
+        Column temp;
+        // storing the id of the new Entry in a variable.
+        String new_id = (String) newEntry[0];
+
+        // run a loop to check if a ID already exists in the ID column with the same value as the 'id' parameter.
+        temp = columns.get(0); // referring to the ID column.
+        for(int index = 0 ; index < no_of_columns ; index++){
+            if(new_id.equals(temp.get(index))){
+                // if the new_id is equal to an existing id, return false and do not add the new Entry.
+                return false;
+            }
+        }
+
+
+
         /** getting the index where the new entry needs to be inserted 
             to maintain alphabetical order in ID column. */
         int insert_index = findInsertIndex((String) newEntry[0]);
-
-        // creating temporary Column reference.
-        Column temp;
 
         // if insert_index is 0 then the column is empty. if it is -1 then entry needs to be inserted as the last row.
         if(insert_index == 0 || insert_index == -1){
@@ -467,6 +480,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
         }
         // incrementing rows to represent the new number of rows.
         no_of_rows++;
+        return true;
     } // ADD()
 
 
@@ -502,16 +516,35 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
     } // findInsertIndex()
 
 
-    public void DELETE(){
+    public boolean DELETE(String id){
+        try{    
+        // getting the row number of id.
+            int row_num = getRowNumberOf(id);
 
-    }
+            for(Column col : columns){
+                // deleting values of the entry from each row
+                col.delete(row_num);
+            }
+        }
+        // if id does not exist, an exception will be thrown.
+        catch(Exception e){
+            return false;
+        }
+        return true;
+    } // DELETE()
 
     public Object GET(String id, String column_name){
-        int col_num = getColumnNumberOf(column_name);
-        int id_num = getIDNumberOf(id);
+        try{
+            int col_num = getColumnNumberOf(column_name);
+            int row_num = getRowNumberOf(id);
 
-        return columns.get(col_num).get(id_num);
-    }
+            return columns.get(col_num).get(row_num);
+        }
+        // if either id or column_name are invalid, an exception is thrown.
+        catch (Exception e){
+            return null;
+        }
+    } // GET()
 
     private int getColumnNumberOf(String column_name){
         for(int index = 0 ; index < no_of_columns ; index++){
@@ -519,15 +552,17 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
                 return index;
             }
         }
-        return -1; // return -1 if attribute does not exist.
+        return -1; // return -1 if column_name does not exist.
     } // getColumnNumberOf()
 
-    private int getIDNumberOf(String id){
-        for(int index = 0 ; index < no_of_columns ; index++){
-            if(column_name.equals(columns.get(index).getName())){
+    private int getRowNumberOf(String id){
+        // making a reference to the ID column.
+        Column id_columns = columns.get(0);
+        for(int index = 0 ; index < no_of_rows ; index++){
+            if(id.equals((String)id_columns.get(index))){
                 return index;
             }
         }
-        return -1; // return -1 if attribute does not exist.
-    } // getColumnNumberOf()
+        return -1; // return -1 if id does not exist.
+    } // getRowNumberOf()
 } // class
