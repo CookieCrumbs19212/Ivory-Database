@@ -516,6 +516,14 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
     } // findInsertIndex()
 
 
+    /**
+     * Method to delete a row from the database.
+     * 
+     * @param id
+     *        ID of the entry that needs to deleted.
+     * 
+     * @return True if the entry was successfully deleted. Otherwise false.
+     */
     public boolean DELETE(String id){
         try{    
         // getting the row number of id.
@@ -533,6 +541,18 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
         return true;
     } // DELETE()
 
+
+    /**
+     * Method to get a value from the database.
+     * 
+     * @param id
+     *        ID of the row entry whose value is requested.
+     * 
+     * @param column_name
+     *        The name of the column value to returned
+     * 
+     * @return The object of {@code id} in {@code column_name}.
+     */
     public Object GET(String id, String column_name){
         try{
             int col_num = getColumnNumberOf(column_name);
@@ -546,6 +566,15 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
         }
     } // GET()
 
+
+    /**
+     * Method to get the column number of a column.
+     * 
+     * @param column_name
+     *        The name of the column.
+     * 
+     * @return The index number of {@code column_name} in {@code columns}. 
+     */
     private int getColumnNumberOf(String column_name){
         for(int index = 0 ; index < no_of_columns ; index++){
             if(column_name.equals(columns.get(index).getName())){
@@ -555,6 +584,15 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
         return -1; // return -1 if column_name does not exist.
     } // getColumnNumberOf()
 
+
+    /**
+     * Method to get the column number of a column.
+     * 
+     * @param id_name
+     *        The id of the row.
+     * 
+     * @return The row number of {@code id} in the Database. 
+     */
     private int getRowNumberOf(String id){
         // making a reference to the ID column.
         Column id_columns = columns.get(0);
