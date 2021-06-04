@@ -58,6 +58,16 @@ class Attribute implements Serializable{
 
 
     /**
+     * method to get the size of the cells ArrayList.
+     * 
+     * @return - the size of cells.
+     */
+    public int getSize(){
+        return cells.size();
+    } // getSize()
+
+
+    /**
      * method for adding values to the class variable {@code cells}.
      * 
      * @param value
