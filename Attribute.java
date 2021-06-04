@@ -1,8 +1,6 @@
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import IvoryDBExceptions.UnsupportedObjectException;
-
 class Attribute implements Serializable{
     private String attribute_name; // name of the attribute.
     /**
@@ -20,7 +18,7 @@ class Attribute implements Serializable{
      * Byte, Boolean, Float, Double or Character.
      * 
      * Hence, this gives us the freedom to declare the data 
-     * type of the 'cells[]' array at a later time during 
+     * type of the 'cells' ArrayList at a later time during 
      * initializing of an Attribute object. 
      */
     private ArrayList<Object> cells;
@@ -29,9 +27,19 @@ class Attribute implements Serializable{
     /**
      * @param attribute_name
      *        the name of the Ivory Database attribute stored in this object.
+     */
+    public Attribute(String attribute_name){
+        this.attribute_name = attribute_name.toUpperCase();
+        this.cells = new ArrayList<>(); // initializing ArrayList()
+    } // constructor
+    
+    
+    /**
+     * @param attribute_name
+     *        the name of the Ivory Database attribute stored in this object.
      * 
      * @param size
-     *        size of the 'cells[]' array.
+     *        size of the 'cells' ArrayList.
      */
     public Attribute(String attribute_name, int size){
         this.attribute_name = attribute_name.toUpperCase();
@@ -97,8 +105,9 @@ class Attribute implements Serializable{
      */
     public boolean delete(int index){
         try{
-            cells.remove(index); // if index is out of bounds, an exception is thrown
+            cells.remove(index); 
         }
+        // if index is out of bounds, an exception is thrown
         catch (Exception e){
             return false;
         }
