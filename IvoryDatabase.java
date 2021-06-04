@@ -426,7 +426,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
     @SuppressWarnings("unused") // suppressing the warning that 'attribute' is unused.
     public void close() {
         this.SAVE(); // saving all the changes made and creating output file.
-        for(Attribute attribute:attributes) {
+        for(Column attribute : columns) {
             attribute = null; 
         }
         System.gc(); // invoking java garbage collector
