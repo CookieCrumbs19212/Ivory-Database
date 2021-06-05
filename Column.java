@@ -140,8 +140,11 @@ class Column implements Serializable{
      * 
      * @return The ArrayList {@code cells} as an Object array.
      */
-    public Object[] getArray(){
+    public Object[] toArray(){
         return cells.toArray();
     } // getArray()
 
+    public boolean isEmpty(){
+        return cells.isEmpty();
+    }
 } // Attribute class
