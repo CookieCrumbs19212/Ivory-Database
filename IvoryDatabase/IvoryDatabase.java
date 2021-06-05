@@ -521,7 +521,9 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
         // creating temporary Column reference.
         Column temp;
         // storing the id of the new Entry in a variable.
-        String new_id = (String) newEntry[0];
+        String new_id = ((String) newEntry[0]).toUpperCase();
+        // setting the ID value to Uppercase.
+        newEntry[0] = new_id;
 
         // All values in ID column must be unique.
         // run a loop to check if a ID already exists in the ID column with the same value as the 'id' parameter.
@@ -577,7 +579,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
     public boolean DELETE(String id){
         try{    
         // getting the row number of id.
-            int row_num = getRowNumberOf(id);
+            int row_num = getRowNumberOf(id.toUpperCase());
 
             for(Column col : columns){
                 // deleting values of the entry from each row
@@ -585,9 +587,12 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
             }
         }
         // if id does not exist, an exception will be thrown.
-        catch(Exception e){
+        catch(RowNotFoundException e){
+            e.printStackTrace();
             return false;
         }
+        // return true if deletion was successful.
+        no_of_rows--;
         return true;
     } // DELETE()
 
@@ -605,24 +610,31 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
      */
     public Object GET(String id, String column_name){
         try{
-            int col_num = getColumnNumberOf(column_name);
-            int row_num = getRowNumberOf(id);
+            int col_num = getColumnNumberOf(column_name.toUpperCase());
+            int row_num = getRowNumberOf(id.toUpperCase());
 
             return columns.get(col_num).get(row_num);
         }
         // if either id or column_name are invalid, an exception is thrown.
-        catch (Exception e){
+        catch (ColumnNotFoundException | RowNotFoundException e){
+            e.printStackTrace();
             return null;
         }
     } // GET()
 
 
     public Object[] GET_COLUMN(String column_name){
-        // getting the column number of the column_name.
-        int col_num = getColumnNumberOf(column_name);
+        try{
+            // getting the column number of the column_name.
+            int col_num = getColumnNumberOf(column_name);
 
-        // converting Column to an Object Array and returning it.
-        return columns.get(col_num).toArray();
+            // converting Column to an Object Array and returning it.
+            return columns.get(col_num).toArray();
+        }
+        catch (ColumnNotFoundException e){
+            e.printStackTrace();
+            return null;
+        }
     } // GET_COLUMN()
 
 
@@ -689,25 +701,30 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
      * 
      * @return The index number of {@code column_name} in {@code columns}. 
      */
-    private int getColumnNumberOf(String column_name){
+    private int getColumnNumberOf(String column_name)
+        throws ColumnNotFoundException {
         for(int index = 0 ; index < no_of_columns ; index++){
             if(column_name.equals(columns.get(index).getName())){
                 return index;
             }
         }
-        return -1; // return -1 if column_name does not exist.
+
+        // throw an Exception if a column with the name column_name is not found.
+        throw new ColumnNotFoundException(column_name);
     } // getColumnNumberOf()
 
 
     /**
      * Method to get the column number of a column.
      * 
-     * @param id_name
-     *        The id of the row.
+     * @param id
+     *        The ID of the row.
      * 
      * @return The row number of {@code id} in the Database. 
+     * @throws RNwotFoundException
      */
-    private int getRowNumberOf(String id){
+    private int getRowNumberOf(String id) 
+        throws RowNotFoundException {
         // making a reference to the ID column.
         Column id_columns = columns.get(0);
         for(int index = 0 ; index < no_of_rows ; index++){
@@ -715,7 +732,9 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
                 return index;
             }
         }
-        return -1; // return -1 if id does not exist.
+        
+        // throw an Exception if a row with the ID id is not found.
+        throw new RowNotFoundException(id);
     } // getRowNumberOf()
 
 } // class
