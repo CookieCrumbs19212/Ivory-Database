@@ -521,15 +521,21 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
         // storing the id of the new Entry in a variable.
         String new_id = (String) newEntry[0];
 
+        // All values in ID column must be unique.
         // run a loop to check if a ID already exists in the ID column with the same value as the 'id' parameter.
         temp = columns.get(0); // referring to the ID column.
-        for(int index = 0 ; index < no_of_columns ; index++){
-            if(new_id.equals(temp.get(index))){
-                // if the new_id is equal to an existing id, return false and do not add the new Entry.
-                return false;
+
+        // check if ID column is empty.
+        if(!temp.isEmpty()){
+            // run loop through ID column.
+            for(int index = 0 ; index < no_of_rows ; index++){
+                // check if the new ID equals an existing ID.
+                if(new_id.equals(temp.get(index))){
+                    // if the new_id is equal to an existing id, return false and do not add the new Entry.
+                    return false;
+                }
             }
         }
-
 
 
         /** getting the index where the new entry needs to be inserted 
@@ -614,7 +620,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
         int col_num = getColumnNumberOf(column_name);
 
         // converting Column to an Object Array and returning it.
-        return columns.get(col_num).getArray();
+        return columns.get(col_num).toArray();
     } // GET_COLUMN()
 
 
