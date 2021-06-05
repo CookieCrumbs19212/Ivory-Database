@@ -1,4 +1,4 @@
-package IvoryDBExceptions;
+package IvoryDatabase.IvoryDBExceptions;
 
 public class AttributeNotFoundException extends Exception {
     public AttributeNotFoundException(String attribute_name, String DB_name) {

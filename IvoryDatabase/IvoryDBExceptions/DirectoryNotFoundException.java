@@ -1,4 +1,4 @@
-package IvoryDBExceptions;
+package IvoryDatabase.IvoryDBExceptions;
 
 public class DirectoryNotFoundException extends Exception {
     public DirectoryNotFoundException(String directory_path) {

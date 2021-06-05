@@ -1,4 +1,4 @@
-package IvoryDBExceptions;
+package IvoryDatabase.IvoryDBExceptions;
 
 public class IllegalFileTypeException extends Exception {
     public IllegalFileTypeException() {

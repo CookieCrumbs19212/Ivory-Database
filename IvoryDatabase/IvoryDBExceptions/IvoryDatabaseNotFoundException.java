@@ -1,4 +1,4 @@
-package IvoryDBExceptions;
+package IvoryDatabase.IvoryDBExceptions;
 
 public class IvoryDatabaseNotFoundException extends Exception {
     public IvoryDatabaseNotFoundException(String file_path) {

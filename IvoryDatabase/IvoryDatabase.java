@@ -1,3 +1,5 @@
+package IvoryDatabase;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
@@ -8,7 +10,7 @@ import java.io.Serializable;
 
 import java.util.ArrayList;
 
-import IvoryDBExceptions.*;
+import IvoryDatabase.IvoryDBExceptions.*;
 
 public class IvoryDatabase implements AutoCloseable, Serializable{
     /**

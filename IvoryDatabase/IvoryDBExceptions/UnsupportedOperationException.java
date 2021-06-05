@@ -1,4 +1,4 @@
-package IvoryDBExceptions;
+package IvoryDatabase.IvoryDBExceptions;
 
 public class UnsupportedOperationException extends Exception {
     public UnsupportedOperationException(String DB_name) {
