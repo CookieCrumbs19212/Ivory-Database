@@ -400,7 +400,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
     public boolean ADD_COLUMN(String column_name){
         try{
             // adding new Column object with the same number of rows as the current database.
-            columns.add(new Column(column_name, no_of_rows));
+            columns.add(new Column(column_name.toUpperCase(), no_of_rows));
 
             // increment no_of_columns.
             no_of_columns++;
@@ -425,7 +425,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
     public boolean DELETE_COLUMN(String column_name){
         try{
             // getting the column number of column_name.
-            int col_num = getColumnNumberOf(column_name);
+            int col_num = getColumnNumberOf(column_name.toUpperCase());
 
             @SuppressWarnings("unused") // suppress warning that 'column' is unused.
             // removing the column from columns.
