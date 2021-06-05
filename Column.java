@@ -135,4 +135,13 @@ class Column implements Serializable{
         return true;
     } // delete()
 
+    /**
+     * Method to return {@code cells} as an array.
+     * 
+     * @return The ArrayList {@code cells} as an Object array.
+     */
+    public Object[] getArray(){
+        return cells.toArray();
+    } // getArray()
+
 } // Attribute class
