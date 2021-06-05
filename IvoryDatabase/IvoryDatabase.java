@@ -579,7 +579,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
     public boolean DELETE(String id){
         try{    
         // getting the row number of id.
-            int row_num = getRowNumberOf(id.toUpperCase());
+            int row_num = getRowNumberOf(id);
 
             for(Column col : columns){
                 // deleting values of the entry from each row
@@ -610,8 +610,8 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
      */
     public Object GET(String id, String column_name){
         try{
-            int col_num = getColumnNumberOf(column_name.toUpperCase());
-            int row_num = getRowNumberOf(id.toUpperCase());
+            int col_num = getColumnNumberOf(column_name);
+            int row_num = getRowNumberOf(id);
 
             return columns.get(col_num).get(row_num);
         }
@@ -623,6 +623,14 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
     } // GET()
 
 
+    /**
+     * Method to get all the values of a Column in the Database.
+     * 
+     * @param column_name
+     *        Name of the {@code Column}.
+     * 
+     * @return {@code Object[]} with the values contained in the requested Column.
+     */
     public Object[] GET_COLUMN(String column_name){
         try{
             // getting the column number of the column_name.
@@ -700,9 +708,16 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
      *        The name of the column.
      * 
      * @return The index number of {@code column_name} in {@code columns}. 
+     * 
+     * @throws ColumnNotFoundException
+     *         if {@code column_name} does not exist.
      */
     private int getColumnNumberOf(String column_name)
         throws ColumnNotFoundException {
+        // make the column_name parameter uppcase.
+        column_name = column_name.toUpperCase();
+
+        // run loop through columns to search for column with name: column_name.
         for(int index = 0 ; index < no_of_columns ; index++){
             if(column_name.equals(columns.get(index).getName())){
                 return index;
@@ -720,13 +735,19 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
      * @param id
      *        The ID of the row.
      * 
-     * @return The row number of {@code id} in the Database. 
-     * @throws RNwotFoundException
+     * @return The row number of {@code id} in the Database.
+     * 
+     * @throws RowNotFoundException
+     *         if {@code id} does not exist in the ID column of the Database.
      */
     private int getRowNumberOf(String id) 
         throws RowNotFoundException {
+        // make id uppercase.
+        id = id.toUpperCase();
         // making a reference to the ID column.
         Column id_columns = columns.get(0);
+
+        // run loop through the ID column.
         for(int index = 0 ; index < no_of_rows ; index++){
             if(id.equals((String)id_columns.get(index))){
                 return index;
