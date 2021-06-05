@@ -56,10 +56,11 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
      */
     public IvoryDatabase() {
         this.no_of_rows = 0;
+        this.no_of_columns = 0;
         columns = new ArrayList<>();
 
         // creating default Attribute "ID" that every Ivory Database must contain.
-        columns.add(new Column("ID"));
+        this.ADD_COLUMN("ID");
     } // constructor IvoryDatabase()
 
 
@@ -74,6 +75,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
         // copying parameter's object variables to this object's variables.
         this.columns = ivoryDBObject.columns;
         this.no_of_rows = ivoryDBObject.no_of_rows;
+        this.no_of_columns = ivoryDBObject.no_of_columns;
     } // constructor IvoryDatabase(IvoryDatabase Object)
 
 
