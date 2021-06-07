@@ -6,13 +6,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 
 import java.util.ArrayList;
 
 import IvoryDatabase.IvoryDBExceptions.*;
 
-public class IvoryDatabase implements AutoCloseable, Serializable{
+public class IvoryDatabase implements AutoCloseable, java.io.Serializable{
     /**
      * Each Attribute object in attributes[] acts like a Column in the Ivory Database.
      * Each Attribute object holds the column values for an Attribute in an Object Array.
@@ -20,14 +19,14 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
      * Attribute.java objects are kept track of using an Array of Attributes in the 
      * IvoryDatabase.java class: 'Attribute[] attributes'
      */
-    private ArrayList<Column> columns; // ArrayList of all Column objects of this Ivory Database.
-    private int no_of_columns; 
-    private int no_of_rows; // total number of rows in the database.
+    private ArrayList<Column> COLUMNS; // ArrayList of all Column objects of this Ivory Database.
+    private int no_of_columns; // keeps track of the total number of columns in the Database.
+    private int no_of_rows; // keeps track of the total number of rows in the Database.
 
     private File FILE_LOCATION = null; // the file where the Ivory Database is stored and saved to.
 
-    private final String file_extension = ".ivry"; // the file extension of the IvoryDB file.
-    private final String file_separator = File.separator; // the file separator of the System.
+    private static final String file_extension = ".ivry"; // the file extension of the IvoryDB file.
+    private static final String file_separator = File.separator; // the file separator of the System.
 
 
     /** 
@@ -59,7 +58,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
     public IvoryDatabase() {
         this.no_of_rows = 0;
         this.no_of_columns = 0;
-        columns = new ArrayList<>();
+        COLUMNS = new ArrayList<>();
 
         // creating default Attribute "ID" that every Ivory Database must contain.
         this.ADD_COLUMN("ID");
@@ -75,7 +74,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
      */
     public IvoryDatabase(IvoryDatabase ivoryDBObject) {
         // copying parameter's object variables to this object's variables.
-        this.columns = ivoryDBObject.columns;
+        this.COLUMNS = ivoryDBObject.COLUMNS;
         this.no_of_rows = ivoryDBObject.no_of_rows;
         this.no_of_columns = ivoryDBObject.no_of_columns;
     } // constructor IvoryDatabase(IvoryDatabase Object)
@@ -111,7 +110,8 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
             // copying the class variables.
             IvoryDatabase deserializedDB = (IvoryDatabase) streamIn.readObject();
             this.no_of_rows = deserializedDB.no_of_rows;
-            this.columns = deserializedDB.columns;
+            this.no_of_columns = deserializedDB.
+            this.COLUMNS = deserializedDB.COLUMNS;
 
             // closing streams.
             streamIn.close();
@@ -158,7 +158,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
 
             // copying the class variables.
             this.no_of_rows = deserializedDB.no_of_rows;
-            this.columns = deserializedDB.columns;
+            this.COLUMNS = deserializedDB.COLUMNS;
 
             // closing streams.
             streamIn.close();
@@ -228,7 +228,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
      */
     private void setDefaultFileLocation(){
         // the default name for the save file.
-        String defaultFilename = "Ivory Database.ivry";
+        String defaultFilename = "unnamed_ivory_database.ivry";
 
         /** CREATING Local Ivory Databases DIRECTORY, IF IT DOESNT ALREADY EXIST **/
         
@@ -310,6 +310,10 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
      * @return The name of the Ivory Database.
      */
     public String getName(){
+        // if FILE_LOCATION has not already been set, set the default file location.
+        if (FILE_LOCATION == null){
+            setDefaultFileLocation();
+        }
         return FILE_LOCATION.getName();
     } // getName()
     
@@ -327,29 +331,33 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
 
 
     /**
+     * @return The path to the parent directory of Ivory Database file.
+     */
+    public String getParentPath(){
+        // if FILE_LOCATION has not already been set, set the default file location.
+        if (FILE_LOCATION == null){
+            setDefaultFileLocation();
+        }
+        return FILE_LOCATION.getParent();
+    } // getParentPath()
+
+
+    /**
      * @return The names of all the Columns in the Ivory Database.
      */
     public String[] getColumnNames(){
         // getting the number of columns in this database.
-        int size = columns.size();
+        int size = COLUMNS.size();
 
         // creating output String[].
         String output[] = new String[size];
         
         // running a loop through columns ArrayList.
         for(int index = 0 ; index < size ; index++){
-            output[index] = columns.get(index).getName();
+            output[index] = COLUMNS.get(index).getName();
         }
         return output;
     } // getColumnNames()
-
-
-    /**
-     * @return The path to the parent directory of Ivory Database file.
-     */
-    public String getParentPath(){
-        return FILE_LOCATION.getParent();
-    } // getParentPath()
 
 
     /**
@@ -376,9 +384,28 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
      * 
      * @return {@code true}, if file rename operation was successful. Otherwise, returns {@code false}.
      */
-    public boolean renameDatabase(String new_filename){
+    public boolean renameDatabaseTo(String new_filename){
+        // if FILE_LOCATION has not already been set, set the default file location.
+        if (FILE_LOCATION == null){
+            setDefaultFileLocation();
+        }
+
+        // checking if new_filename does not contain the file extension ".ivry".
+        if (!new_filename.endsWith(file_extension)){
+            // if ".ivry" does not exist in the new_filename, check if any other file extension exists.
+            if (new_filename.indexOf(".") == -1) {
+                // if no other file extension exists, append ".ivry" to the new_filename 
+                // and proceed with renaming process.
+                new_filename = new_filename + file_extension;
+            }
+            // if new_filename contains another file extension than ".ivry", quit renaming process.
+            else {
+                return false;
+            }
+        }
+
         // validating param, checking if new_filename is null or contains any file_separators.
-        if(new_filename != null && new_filename.indexOf(file_separator) == -1){
+        if (new_filename != null && new_filename.indexOf(file_separator) == -1){
             // creating a File object with the new filename.
             File new_file = new File(FILE_LOCATION.getParent() + file_separator + new_filename);
 
@@ -387,8 +414,9 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
                 return FILE_LOCATION.renameTo(new_file); // rename
             }
         }
+        // if any error occured, returns false.
         return false;
-    } // renameDatabase()
+    } // renameDatabaseTo()
 
 
     /**
@@ -402,7 +430,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
     public boolean ADD_COLUMN(String column_name){
         try{
             // adding new Column object with the same number of rows as the current database.
-            columns.add(new Column(column_name.toUpperCase(), no_of_rows));
+            COLUMNS.add(new Column(column_name.toUpperCase(), no_of_rows));
 
             // increment no_of_columns.
             no_of_columns++;
@@ -431,7 +459,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
 
             @SuppressWarnings("unused") // suppress warning that 'column' is unused.
             // removing the column from columns.
-            Column column = columns.remove(col_num);
+            Column column = COLUMNS.remove(col_num);
             // set the column to null to effectively delete it.
             column = null;
         }
@@ -439,7 +467,8 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
             // if column does not exist, an exception is thrown. Deletion failed.
             return false;
         }
-        // return true for successful deletion.
+        // reduce no_of_coulmns by one and return true for successful deletion.
+        no_of_columns--;
         return true;
     } // DELETE_COLUMN
 
@@ -499,7 +528,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
         this.SAVE(); 
 
         // setting all the columns to null.
-        for(Column column : columns) {
+        for(Column column : COLUMNS) {
             column = null; 
         }
         System.gc(); // invoking java garbage collector
@@ -527,7 +556,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
 
         // All values in ID column must be unique.
         // run a loop to check if a ID already exists in the ID column with the same value as the 'id' parameter.
-        temp = columns.get(0); // referring to the ID column.
+        temp = COLUMNS.get(0); // referring to the ID column.
 
         // check if ID column is empty.
         if(!temp.isEmpty()){
@@ -544,13 +573,13 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
 
         /** getting the index where the new entry needs to be inserted 
             to maintain alphabetical order in ID column. */
-        int insert_index = findInsertIndex((String) newEntry[0]);
+        int insert_index = findInsertIndex(new_id);
 
-        // if insert_index is 0 then the column is empty. if it is -1 then entry needs to be inserted as the last row.
-        if(insert_index == 0 || insert_index == -1){
+        // if insert_index is -1 then the column is empty or the new entry needs to be inserted as the last row.
+        if(insert_index == -1){
             // loop going through every Column to add the attributes of this entry.
             for(int col_num = 0 ; col_num < no_of_columns ; col_num++){
-                temp = columns.get(col_num);
+                temp = COLUMNS.get(col_num);
                 temp.add(newEntry[col_num]);
             }
         }
@@ -558,7 +587,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
             // loop going through every column to add the attributes of this entry.
             for(int col_num = 0 ; col_num < no_of_columns ; col_num++){
                 // inserting the new Entry's attribute to the corresponding Attribute column.
-                temp = columns.get(col_num);
+                temp = COLUMNS.get(col_num);
                 temp.insert(insert_index, newEntry[col_num]);
             }
         }
@@ -581,7 +610,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
         // getting the row number of id.
             int row_num = getRowNumberOf(id);
 
-            for(Column col : columns){
+            for(Column col : COLUMNS){
                 // deleting values of the entry from each row
                 col.delete(row_num);
             }
@@ -591,7 +620,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
             e.printStackTrace();
             return false;
         }
-        // return true if deletion was successful.
+        // reduce no_of_rows by 1 and return true if deletion was successful.
         no_of_rows--;
         return true;
     } // DELETE()
@@ -613,7 +642,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
             int col_num = getColumnNumberOf(column_name);
             int row_num = getRowNumberOf(id);
 
-            return columns.get(col_num).get(row_num);
+            return COLUMNS.get(col_num).get(row_num);
         }
         // if either id or column_name are invalid, an exception is thrown.
         catch (ColumnNotFoundException | RowNotFoundException e){
@@ -621,6 +650,41 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
             return null;
         }
     } // GET()
+
+
+    /**
+     * Method to set the value of cell in the Database.
+     * 
+     * @param id
+     *        The ID of the Database row.
+     * 
+     * @param column_name
+     *        The name of the Column in the Database.
+     * 
+     * @param value
+     *        The value that the cell is to be set to.
+     *  
+     * @return True, if the cell value was set successfully. Otherwise, returns false.
+     */
+    public boolean SET(String id, String column_name, Object value){
+        int col_num, row_num;
+        try{
+            col_num = getColumnNumberOf(column_name);
+            row_num = getRowNumberOf(id);
+        }
+        // if either id or column_name are invalid, an exception is thrown.
+        catch (ColumnNotFoundException | RowNotFoundException e){
+            e.printStackTrace();
+            return false;
+        }
+        // creating a Column reference to col_num.
+        Column column = COLUMNS.get(col_num);
+        // setting the value of the cell.
+        column.set(row_num, value);
+
+        // if value was successfully set, return true.
+        return true;
+    } // SET()
 
 
     /**
@@ -637,7 +701,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
             int col_num = getColumnNumberOf(column_name);
 
             // converting Column to an Object Array and returning it.
-            return columns.get(col_num).toArray();
+            return COLUMNS.get(col_num).toArray();
         }
         catch (ColumnNotFoundException e){
             e.printStackTrace();
@@ -654,7 +718,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
         Column currentCol;
         for(int row = 0 ; row < no_of_rows ; row++){
             for(int col = 0 ; col < no_of_columns ; col++){
-                currentCol = columns.get(col);
+                currentCol = COLUMNS.get(col);
                 output = output + String.valueOf(currentCol.get(row)) + ", ";
             }
             output = output + "\b\n";
@@ -681,11 +745,11 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
         // making id uppercase.
         id = id.toUpperCase();
         // getting the ID attribute column.
-        Column id_column = columns.get(0);
+        Column id_column = COLUMNS.get(0);
 
-        // if ID column is empty, then return 0.
+        // if ID column is empty, then return -1.
         if (no_of_rows == 0){
-            return 0;
+            return -1;
         }
         else{
             // running loop through ID column to find alphabetically correct index to insert the entry.
@@ -719,7 +783,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
 
         // run loop through columns to search for column with name: column_name.
         for(int index = 0 ; index < no_of_columns ; index++){
-            if(column_name.equals(columns.get(index).getName())){
+            if(column_name.equals(COLUMNS.get(index).getName())){
                 return index;
             }
         }
@@ -745,7 +809,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable{
         // make id uppercase.
         id = id.toUpperCase();
         // making a reference to the ID column.
-        Column id_columns = columns.get(0);
+        Column id_columns = COLUMNS.get(0);
 
         // run loop through the ID column.
         for(int index = 0 ; index < no_of_rows ; index++){
