@@ -1,9 +1,8 @@
 package IvoryDatabase;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
-class Column implements Serializable{
+class Column implements java.io.Serializable{
     private String column_name; // name of the column.
     /**
      * Since we do not know the OBJECT TYPE the Column will 
