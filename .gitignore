@@ -1,3 +1,4 @@
 # ignore the test.java file that is used for testing the Ivory Database functions
 tests
+Local Ivory Databases
 .DS_Store
