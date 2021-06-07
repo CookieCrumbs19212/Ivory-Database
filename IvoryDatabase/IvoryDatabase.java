@@ -20,8 +20,8 @@ public class IvoryDatabase implements AutoCloseable, java.io.Serializable{
      * IvoryDatabase.java class: 'Attribute[] attributes'
      */
     private ArrayList<Column> COLUMNS; // ArrayList of all Column objects of this Ivory Database.
-    private int no_of_columns; // keeps track of the total number of columns in the Database.
-    private int no_of_rows; // keeps track of the total number of rows in the Database.
+    private transient int no_of_columns; // keeps track of the total number of columns in the Database.
+    private transient int no_of_rows; // keeps track of the total number of rows in the Database.
 
     private File FILE_LOCATION = null; // the file where the Ivory Database is stored and saved to.
 
@@ -107,11 +107,15 @@ public class IvoryDatabase implements AutoCloseable, java.io.Serializable{
             FileInputStream fileIn = new FileInputStream(FILE_LOCATION);
             ObjectInputStream streamIn = new ObjectInputStream(fileIn);
 
-            // copying the class variables.
+            // deserializing and casting.
             IvoryDatabase deserializedDB = (IvoryDatabase) streamIn.readObject();
-            this.no_of_rows = deserializedDB.no_of_rows;
-            this.no_of_columns = deserializedDB.
             this.COLUMNS = deserializedDB.COLUMNS;
+
+            // assinging the size of the ID column to no_of_rows.
+            this.no_of_rows = COLUMNS.get(0).getSize();
+            // assiging the size of the COLUMNS array list to no_of_columns.
+            this.no_of_columns = COLUMNS.size();
+            
 
             // closing streams.
             streamIn.close();
@@ -153,12 +157,14 @@ public class IvoryDatabase implements AutoCloseable, java.io.Serializable{
             FileInputStream fileIn = new FileInputStream(FILE_LOCATION);
             ObjectInputStream streamIn = new ObjectInputStream(fileIn);
 
-            // deserializing and casting Ivory Database Object
+            // deserializing and casting.
             IvoryDatabase deserializedDB = (IvoryDatabase) streamIn.readObject();
-
-            // copying the class variables.
-            this.no_of_rows = deserializedDB.no_of_rows;
             this.COLUMNS = deserializedDB.COLUMNS;
+
+            // assinging the size of the ID column to no_of_rows.
+            this.no_of_rows = COLUMNS.get(0).getSize();
+            // assiging the size of the COLUMNS array list to no_of_columns.
+            this.no_of_columns = COLUMNS.size();
 
             // closing streams.
             streamIn.close();
