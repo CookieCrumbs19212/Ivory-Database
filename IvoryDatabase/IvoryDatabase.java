@@ -3,6 +3,7 @@ package IvoryDatabase;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -87,19 +88,27 @@ public class IvoryDatabase implements AutoCloseable, java.io.Serializable{
      *        the file path in the system where an existing Ivory Database
      *        file (.ivry) is stored.
      * 
-     * @throws IvoryDatabaseNotFoundException
-     *         when file_path is null, or File at file_path does not exist.
+     * @throws IllegalFileTypeException
+     *         When the file type is not an Ivory Database.
+     * 
+     * @throws FileNotFoundException
+     *         When the file at {@code file_path} does not exist.
      */
     public IvoryDatabase(String file_path) 
-        throws IvoryDatabaseNotFoundException {
+        throws IllegalFileTypeException, FileNotFoundException {
         // validating file_path.
         if(file_path == null){
             throw new IllegalArgumentException("File path cannot be null.");
         }
-        // assigning File object of file_path to IVORY_DB_FILE.
+        // checking if the file type is correct.
+        else if (!file_path.endsWith(file_extension)){
+            throw new IllegalFileTypeException();
+        }
+
+        // assigning File object of file_path to FILE_LOCATION.
         FILE_LOCATION = new File(file_path);
         if(!FILE_LOCATION.exists()){
-            throw new IvoryDatabaseNotFoundException(file_path);
+            throw new FileNotFoundException();
         }
 
         // deserializing the file.
@@ -132,24 +141,33 @@ public class IvoryDatabase implements AutoCloseable, java.io.Serializable{
 
 
     /** 
-     * opening an existng Ivory Database from {@code input_file}.
+     * opening an existng Ivory Database from {@code ivory_file}.
      * 
      * @param ivory_file
      *        the file where an existing Ivory Database file (.ivry) is stored.
      * 
-     * @throws IvoryDatabaseNotFoundException
-     *         when input file is null, or input file does not exist.
+     * @throws IllegalFileTypeException
+     *         When the file type is not an Ivory Database.
+     * 
+     * @throws FileNotFoundException
+     *         When the file does not exist.
      */
     public IvoryDatabase(File ivory_file) 
-        throws IvoryDatabaseNotFoundException {
+        throws IllegalFileTypeException, FileNotFoundException {
+        
         // validating ivory_file.
         if(ivory_file == null){
             throw new IllegalArgumentException("Ivory Database File cannot be null.");
         }
+        // checking if the file type is correct.
+        else if (!ivory_file.getName().endsWith(file_extension)){
+            throw new IllegalFileTypeException();
+        }
+        
         // assigning ivory_file to FILE_LOCATION.
         FILE_LOCATION = ivory_file;
         if(!FILE_LOCATION.exists()){
-            throw new IvoryDatabaseNotFoundException(ivory_file.getPath());
+            throw new FileNotFoundException();
         }
 
         // deserializing the file.
