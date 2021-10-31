@@ -18,11 +18,11 @@ class Column implements java.io.Serializable{
      * type of the 'cells' ArrayList at a later time during 
      * initializing of a Column object. 
      */
-    private ArrayList<Object> cells;
+    private final ArrayList<Object> cells;
 
 
     /**
-     * @param column_name
+     * @param col_name
      *        The name of the Column.
      */
     public Column(String col_name){
@@ -32,7 +32,7 @@ class Column implements java.io.Serializable{
     
     
     /**
-     * @param column_name
+     * @param col_name
      *        The name of the {@code Column}.
      * 
      * @param size
