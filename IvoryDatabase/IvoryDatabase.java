@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 import IvoryDatabase.IvoryDBExceptions.*;
 
-public class IvoryDatabase implements AutoCloseable, Serializable, Cloneable{
+public class IvoryDatabase implements AutoCloseable, Serializable{
     /**
      * Each Attribute object in attributes[] acts like a Column in the Ivory Database.
      * Each Attribute object holds the column values for an Attribute in an Object Array.
@@ -43,13 +43,9 @@ public class IvoryDatabase implements AutoCloseable, Serializable, Cloneable{
      */
 
 
-    /*** 
-        *** Constructors and their helper methods ***
-    ***/
+    // ** Constructors and their helper methods **
 
-    /** 
-     * creating a new Ivory Database object.
-     */
+    // Creating a new Ivory Database object.
     public IvoryDatabase() {
         this.no_of_rows = 0;
         this.no_of_columns = 0;
@@ -243,7 +239,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable, Cloneable{
         // the default name for the save file.
         String defaultFilename = "unnamed_ivory_database.ivry";
 
-        /** CREATING Local Ivory Databases DIRECTORY, IF IT DOESN'T ALREADY EXIST **/
+        /* CREATING Local Ivory Databases DIRECTORY, IF IT DOESN'T ALREADY EXIST */
         
         // getting the Path string of the current working directory.
         String workingDirectory = System.getProperty("user.dir");
@@ -260,7 +256,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable, Cloneable{
                 System.out.println("\n\"Local Ivory Databases\" directory creation failed.\n"); 
         }
 
-        /** CREATING THE DEFAULT FILE **/
+        /* CREATING THE DEFAULT FILE */
 
         // creating a default .ivry file in the "Local Ivory Databases" directory.
         File defaultFile = new File(defaultDirectoryPath + file_separator + defaultFilename);
@@ -314,10 +310,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable, Cloneable{
     } // rectifyFileNameCollision()
 
 
-    /*** 
-        *** Object Attribute and related methods ***
-    ***/
-
+    /* Object Attribute and related methods */
     
     /**
      * @return The name of the Ivory Database.
@@ -363,7 +356,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable, Cloneable{
         int size = COLUMNS.size();
 
         // creating output String[].
-        String output[] = new String[size];
+        String[] output = new String[size];
         
         // running a loop through columns ArrayList.
         for(int index = 0 ; index < size ; index++){
@@ -406,7 +399,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable, Cloneable{
         // checking if new_filename does not contain the file extension ".ivry".
         if (!new_filename.endsWith(file_extension)){
             // if ".ivry" does not exist in the new_filename, check if any other file extension exists.
-            if (new_filename.indexOf(".") == -1) {
+            if (!new_filename.contains(".")) {
                 // if no other file extension exists, append ".ivry" to the new_filename 
                 // and proceed with renaming process.
                 new_filename = new_filename + file_extension;
@@ -418,7 +411,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable, Cloneable{
         }
 
         // validating param, checking if new_filename is null or contains any file_separators.
-        if (new_filename != null && new_filename.indexOf(file_separator) == -1){
+        if (!new_filename.contains(file_separator)){
             // creating a File object with the new filename.
             File new_file = new File(FILE_LOCATION.getParent() + file_separator + new_filename);
 
@@ -548,10 +541,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable, Cloneable{
     } // close()
 
 
-    /*** 
-        *** Regular Operation Methods ***
-    ***/
-
+    /* Regular Operation Methods */
 
     /**
      * Method to add a new row to the Database.
@@ -584,8 +574,8 @@ public class IvoryDatabase implements AutoCloseable, Serializable, Cloneable{
         }
 
 
-        /** getting the index where the new entry needs to be inserted 
-            to maintain alphabetical order in ID column. */
+        /* getting the index where the new entry needs to be inserted
+           to maintain alphabetical order in ID column. */
         int insert_index = findInsertIndex(new_id);
 
         // if insert_index is -1 then the column is empty or the new entry needs to be inserted as the last row.
@@ -727,24 +717,20 @@ public class IvoryDatabase implements AutoCloseable, Serializable, Cloneable{
      * @return The Ivory Database as a comma separated table.
      */
     public String getCSV(){
-        String output = "";
+        StringBuilder output = new StringBuilder();
         Column currentCol;
         for(int row = 0 ; row < no_of_rows ; row++){
             for(int col = 0 ; col < no_of_columns ; col++){
                 currentCol = COLUMNS.get(col);
-                output = output + String.valueOf(currentCol.get(row)) + ", ";
+                output.append(currentCol.get(row)).append(", ");
             }
-            output = output + "\b\n";
+            output.append("\b\n");
         }
-        return output;
+        return output.toString();
     } // GET_CONTENTS()
 
 
-
-    /*** 
-        *** Helper Methods ***
-    ***/
-
+    /* Helper Methods */
 
     /**
      * @param id
@@ -826,7 +812,7 @@ public class IvoryDatabase implements AutoCloseable, Serializable, Cloneable{
 
         // run loop through the ID column.
         for(int index = 0 ; index < no_of_rows ; index++){
-            if(id.equals((String)id_columns.get(index))){
+            if(id.equals(id_columns.get(index))){
                 return index;
             }
         }
